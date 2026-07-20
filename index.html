@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Смета на дизайн и ремонт</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1c1b19;
+    --surface: #262420;
+    --surface-2: #2f2c27;
+    --line: rgba(242,238,230,0.09);
+    --line-strong: rgba(242,238,230,0.18);
+    --text: #f2eee6;
+    --text-dim: #a8a296;
+    --text-faint: #6f6a60;
+    --brass: #c9a567;
+    --brass-dim: rgba(201,165,103,0.14);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: -1px -1px;
+    min-height: 100vh;
+    padding: 20px 18px 100px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin: 4px 0 6px;
+    font-weight: 500;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.15;
+    margin: 0 0 24px;
+  }
+  .label {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
+  .section { margin-bottom: 26px; }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .seg-btn {
+    background: var(--surface);
+    border: 0.5px solid var(--line-strong);
+    border-radius: 10px;
+    color: var(--text-dim);
+    padding: 13px 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .seg-btn.active {
+    border-color: var(--brass);
+    color: var(--text);
+    background: var(--brass-dim);
+  }
+
+  .area-card {
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .area-readout {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .area-readout span { font-size: 16px; color: var(--text-dim); font-family: 'Inter', sans-serif; }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--line-strong);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--brass);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+
+  .level-card {
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .level-card.active {
+    border-color: var(--brass);
+    background: var(--brass-dim);
+  }
+  .level-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .level-name { font-size: 15px; font-weight: 500; }
+  .level-price { font-size: 12px; color: var(--text-faint); }
+  .level-desc { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+
+  .pill-row { display: flex; gap: 8px; }
+  .pill-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 0.5px solid var(--line-strong);
+    border-radius: 10px;
+    color: var(--text-dim);
+    padding: 11px 6px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .pill-btn.active {
+    border-color: var(--brass);
+    color: var(--text);
+    background: var(--brass-dim);
+  }
+  .subhint { font-size: 11.5px; color: var(--text-faint); margin: -4px 0 12px; }
+
+  .estimate {
+    background: var(--surface-2);
+    border: 0.5px solid var(--line-strong);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .estimate-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .estimate-value {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--brass);
+  }
+  .estimate-note { font-size: 11.5px; color: var(--text-faint); margin-top: 10px; line-height: 1.5; }
+
+  .field {
+    width: 100%;
+    background: var(--surface);
+    border: 0.5px solid var(--line-strong);
+    border-radius: 10px;
+    padding: 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .field::placeholder { color: var(--text-faint); }
+  .field:focus { outline: none; border-color: var(--brass); }
+
+  .recap {
+    background: var(--surface);
+    border: 0.5px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+    line-height: 1.8;
+  }
+  .recap b { color: var(--text); font-weight: 500; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+</style>
+</head>
+<body>
+
+<div id="screen-calc" class="screen active">
+  <p class="eyebrow">Дизайн · Ремонт под ключ</p>
+  <h1>Смета за&nbsp;30&nbsp;секунд</h1>
+
+  <div class="section">
+    <p class="label">Тип объекта</p>
+    <div class="segmented">
+      <button class="seg-btn active" data-object="flat">Квартира</button>
+      <button class="seg-btn" data-object="house">Частный дом</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Состояние объекта</p>
+    <div class="segmented" id="state-group" style="grid-template-columns: 1fr;">
+      <button class="seg-btn active" data-state="new_no_finish">Новостройка без отделки</button>
+      <button class="seg-btn" data-state="resale_no_finish" style="margin-top:8px;">Вторичка без ремонта (черновая)</button>
+      <button class="seg-btn" data-state="resale_renovated" style="margin-top:8px;">Вторичка с ремонтом</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Площадь</p>
+    <div class="area-card">
+      <div class="area-readout"><span id="area-val">65</span> <span>м²</span></div>
+      <input type="range" id="area-slider" min="20" max="400" value="65" step="1">
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Комнат</p>
+    <div class="pill-row" id="rooms-group">
+      <button class="pill-btn active" data-rooms="1">1</button>
+      <button class="pill-btn" data-rooms="2">2</button>
+      <button class="pill-btn" data-rooms="3">3</button>
+      <button class="pill-btn" data-rooms="4">4</button>
+      <button class="pill-btn" data-rooms="5">5+</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Санузлов</p>
+    <div class="pill-row" id="bath-group">
+      <button class="pill-btn active" data-bath="1">1</button>
+      <button class="pill-btn" data-bath="2">2</button>
+      <button class="pill-btn" data-bath="3">3+</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Нужна замена сантехники и электрики?</p>
+    <p class="subhint">Стояки, проводка — это отдельная и не дешёвая статья работ</p>
+    <div class="pill-row" id="comm-group">
+      <button class="pill-btn active" data-comm="no">Нет</button>
+      <button class="pill-btn" data-comm="yes">Да</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <p class="label">Уровень ремонта</p>
+    <div class="level-card active" data-level="econom">
+      <div class="level-row"><span class="level-name">Эконом</span><span class="level-price">16 500–22 500 ₽/м²</span></div>
+      <div class="level-desc">Простые материалы, базовая комплектация</div>
+    </div>
+    <div class="level-card" data-level="standard">
+      <div class="level-row"><span class="level-name">Стандарт</span><span class="level-price">27 500–39 500 ₽/м²</span></div>
+      <div class="level-desc">Качественные материалы, продуманный дизайн</div>
+    </div>
+    <div class="level-card" data-level="premium">
+      <div class="level-row"><span class="level-name">Премиум</span><span class="level-price">50 000–79 000 ₽/м²</span></div>
+      <div class="level-desc">Индивидуальный проект, премиальные материалы</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="estimate">
+      <div class="estimate-label">Дизайн + ремонт под ключ</div>
+      <div class="estimate-value" id="estimate-out">1 787 500 – 2 567 500 ₽</div>
+      <div class="estimate-note">Приблизительный расчёт. Точную смету составим бесплатно на консультации.</div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-contact" class="screen">
+  <p class="eyebrow">Последний шаг</p>
+  <h1>Оставьте контакт</h1>
+
+  <div class="recap" id="recap"></div>
+
+  <p class="label">Когда планируете начать?</p>
+  <div class="pill-row" id="deadline-group" style="flex-wrap: wrap; margin-bottom: 20px;">
+    <button class="pill-btn active" data-deadline="asap" style="flex: 1 1 45%;">Сейчас</button>
+    <button class="pill-btn" data-deadline="month" style="flex: 1 1 45%;">Через месяц</button>
+    <button class="pill-btn" data-deadline="quarter" style="flex: 1 1 45%;">Через 2–3 мес</button>
+    <button class="pill-btn" data-deadline="exploring" style="flex: 1 1 45%;">Просто изучаю</button>
+  </div>
+
+  <p class="label">Телефон</p>
+  <input class="field" id="phone-input" type="tel" placeholder="+7 900 123-45-67" inputmode="tel">
+
+  <p class="label">Имя (необязательно)</p>
+  <input class="field" id="name-input" type="text" placeholder="Как к вам обращаться">
+</div>
+
+<script>
+  const tg = window.Telegram ? window.Telegram.WebApp : null;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  const DESIGN_PRICES = { econom: [1500, 2500], standard: [2500, 4500], premium: [5000, 9000] };
+  const RENOVATION_PRICES = { econom: [15000, 20000], standard: [25000, 35000], premium: [45000, 70000] };
+  const HOUSE_COEFFICIENT = 1.15;
+  const OBJECT_STATE_COEFF = { new_no_finish: 1.00, resale_no_finish: 1.05, resale_renovated: 1.15 };
+  const COMMUNICATIONS_PRICE = [3000, 5000];
+  const EXTRA_BATHROOM_PRICE = [90000, 150000];
+  const ROOM_COMPLEXITY_STEP = 0.015;
+  const ROOM_COMPLEXITY_BASE_ROOMS = 2;
+
+  const LEVEL_LABELS = { econom: 'Эконом', standard: 'Стандарт', premium: 'Премиум' };
+  const OBJECT_LABELS = { flat: 'Квартира', house: 'Частный дом' };
+  const STATE_LABELS = {
+    new_no_finish: 'Новостройка без отделки',
+    resale_no_finish: 'Вторичка без ремонта',
+    resale_renovated: 'Вторичка с ремонтом',
+  };
+  const DEADLINE_LABELS = {
+    asap: 'Готовы начать сейчас',
+    month: 'В течение месяца',
+    quarter: 'Через 2–3 месяца',
+    exploring: 'Пока изучаю варианты',
+  };
+
+  let state = {
+    object: 'flat',
+    objectState: 'new_no_finish',
+    area: 65,
+    rooms: 1,
+    bathrooms: 1,
+    communications: false,
+    level: 'econom',
+    deadline: 'asap',
+  };
+
+  function bindGroup(selector, dataAttr, stateKey, parse, onChange) {
+    document.querySelectorAll(selector).forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state[stateKey] = parse ? parse(btn.dataset[dataAttr]) : btn.dataset[dataAttr];
+        if (onChange) onChange();
+        recalc();
+      });
+    });
+  }
+
+  bindGroup('[data-object]', 'object', 'object');
+  bindGroup('[data-state]', 'state', 'objectState');
+  bindGroup('[data-rooms]', 'rooms', 'rooms', v => parseInt(v, 10));
+  bindGroup('[data-bath]', 'bath', 'bathrooms', v => parseInt(v, 10));
+  bindGroup('[data-comm]', 'comm', 'communications', v => v === 'yes');
+  bindGroup('[data-level]', 'level', 'level');
+  bindGroup('[data-deadline]', 'deadline', 'deadline');
+
+  const slider = document.getElementById('area-slider');
+  const areaVal = document.getElementById('area-val');
+  slider.addEventListener('input', () => {
+    state.area = parseInt(slider.value, 10);
+    areaVal.textContent = state.area;
+    recalc();
+  });
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('ru-RU');
+  }
+
+  function getEstimate() {
+    const [dMin, dMax] = DESIGN_PRICES[state.level];
+    const [rMin, rMax] = RENOVATION_PRICES[state.level];
+
+    const houseCoeff = state.object === 'house' ? HOUSE_COEFFICIENT : 1;
+    const stateCoeff = OBJECT_STATE_COEFF[state.objectState] || 1;
+    const extraRooms = Math.max(0, state.rooms - ROOM_COMPLEXITY_BASE_ROOMS);
+    const roomCoeff = 1 + extraRooms * ROOM_COMPLEXITY_STEP;
+    const totalCoeff = houseCoeff * stateCoeff * roomCoeff;
+
+    let min = (dMin + rMin) * state.area * totalCoeff;
+    let max = (dMax + rMax) * state.area * totalCoeff;
+
+    if (state.communications) {
+      const [cMin, cMax] = COMMUNICATIONS_PRICE;
+      min += cMin * state.area;
+      max += cMax * state.area;
+    }
+
+    const extraBathrooms = Math.max(0, state.bathrooms - 1);
+    if (extraBathrooms) {
+      const [bMin, bMax] = EXTRA_BATHROOM_PRICE;
+      min += extraBathrooms * bMin;
+      max += extraBathrooms * bMax;
+    }
+
+    return { min, max };
+  }
+
+  function recalc() {
+    const { min, max } = getEstimate();
+    document.getElementById('estimate-out').textContent = `${fmt(min)} – ${fmt(max)} ₽`;
+  }
+
+  recalc();
+
+  // === Экраны и нативная нижняя кнопка Telegram ===
+  const screenCalc = document.getElementById('screen-calc');
+  const screenContact = document.getElementById('screen-contact');
+
+  function showContactScreen() {
+    const { min, max } = getEstimate();
+    document.getElementById('recap').innerHTML =
+      `Объект: <b>${OBJECT_LABELS[state.object]}</b>, ${STATE_LABELS[state.objectState]}<br>` +
+      `Площадь: <b>${state.area} м²</b>, комнат: <b>${state.rooms}</b>, санузлов: <b>${state.bathrooms}</b><br>` +
+      `Замена коммуникаций: <b>${state.communications ? 'да' : 'нет'}</b><br>` +
+      `Уровень: <b>${LEVEL_LABELS[state.level]}</b><br>` +
+      `Смета: <b>${fmt(min)} – ${fmt(max)} ₽</b>`;
+    screenCalc.classList.remove('active');
+    screenContact.classList.add('active');
+    if (tg) {
+      tg.BackButton.show();
+      tg.MainButton.setText('Отправить заявку');
+    }
+  }
+
+  function showCalcScreen() {
+    screenContact.classList.remove('active');
+    screenCalc.classList.add('active');
+    if (tg) {
+      tg.BackButton.hide();
+      tg.MainButton.setText('Оставить заявку');
+    }
+  }
+
+  function submitLead() {
+    const phone = document.getElementById('phone-input').value.trim();
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length < 10) {
+      if (tg) tg.HapticFeedback.notificationOccurred('error');
+      document.getElementById('phone-input').style.borderColor = '#e0625a';
+      return;
+    }
+    const name = document.getElementById('name-input').value.trim();
+    const { min, max } = getEstimate();
+
+    const payload = {
+      object_type: state.object,
+      object_state: state.objectState,
+      area: state.area,
+      rooms: state.rooms,
+      bathrooms: state.bathrooms,
+      communications: state.communications,
+      level: state.level,
+      deadline: state.deadline,
+      estimate_min: Math.round(min),
+      estimate_max: Math.round(max),
+      phone: phone,
+      name: name,
+    };
+
+    if (tg) {
+      tg.sendData(JSON.stringify(payload));
+      tg.close();
+    } else {
+      alert('Заявка (демо-режим вне Telegram):\n' + JSON.stringify(payload, null, 2));
+    }
+  }
+
+  if (tg) {
+    tg.MainButton.setText('Оставить заявку');
+    tg.MainButton.color = '#c9a567';
+    tg.MainButton.textColor = '#1c1b19';
+    tg.MainButton.show();
+
+    tg.MainButton.onClick(() => {
+      if (screenCalc.classList.contains('active')) {
+        showContactScreen();
+      } else {
+        submitLead();
+      }
+    });
+
+    tg.BackButton.onClick(showCalcScreen);
+  }
+</script>
+
+</body>
+</html>
